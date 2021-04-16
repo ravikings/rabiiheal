@@ -12,7 +12,6 @@ class Appointment(models.Model):
     dob = models.DateField()
     address = models.CharField(max_length=100, default='')
     city = models.CharField(max_length=20, default='')
-    address = models.CharField(max_length=10, default='')
     state = models.CharField(max_length=10, default='')
     schedule_date = models.DateField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
