@@ -1,4 +1,5 @@
-import json
+import json 
+from json import JSONDecoder
 from unittest.result import TestResult
 
 from django.contrib.auth.models import AnonymousUser, User
@@ -14,11 +15,12 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.response import Response
 from django.urls import include, path, reverse
 from rest_framework.test import APIClient, RequestsClient
-from rest_framework.test import APITestCase, URLPatternsTestCase
+from rest_framework.test import APITestCase, URLPatternsTestCase, APIRequestFactory
 
 from appointment.serializers import UserSerializer
 from appointment.models import Appointment
 from .views import AppointmentList
+from appointment.models import Appointment
 
 # Create your tests here.
 
@@ -65,14 +67,31 @@ class RegistrationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_appiontment_schedule_data_for_authorized_user(self):
-    
+
         c = Client()
         c.login(username='admin', password='admin')
         response = c.get("/api/v1/1")
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response['content-type'], 'text/html; charset=utf-8')
 
+    def test_unauthorization_denial_access_for_appiontment_list(self):
+        factory = APIRequestFactory()
+        view = AppointmentList.as_view()
+        request = factory.get('/api/v1/1')
+        response = view(request, pk='1')
+        response.render()
+        self.assertEqual(response.content.decode(
+            'utf-8'), '{"detail":"Authentication credentials were not provided."}')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-x=RegistrationTestCase()
-print(x.test_appiontment_schedule_data_for_authorized_user())
+    def test_authorization_access_for_appiontment_list(self):
+        data = {
+            "Username": "admin",
+            "Password": "admin"
+        }
 
+        response = self.client.post("/api-auth/login/", data, content_type='application/json')
+        html = response.content.decode('utf8')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('<label for="id_password">Password:</label>', html)
+     
