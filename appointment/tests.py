@@ -22,14 +22,6 @@ from appointment.models import Appointment
 from .views import AppointmentList
 from appointment.models import Appointment
 
-# Create your tests here.
-
-
-# http://127.0.0.1:8000/api/v1/dj-rest-auth/login/.
-# http://127.0.0.1:8000/api/v1/dj-rest-auth/logout/.
-# http://127.0.0.1:8000/api/v1/dj-rest-auth/password/reset
-# http://127.0.0.1:8000/api/v1/dj-rest-auth/password/reset
-
 
 class RegistrationTestCase(APITestCase):
 
@@ -87,6 +79,7 @@ class RegistrationTestCase(APITestCase):
     def test_authorization_access_for_appiontment_list(self):
         data = {
             "Username": "admin",
+            "email": "",
             "Password": "admin"
         }
 
@@ -95,3 +88,4 @@ class RegistrationTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('<label for="id_password">Password:</label>', html)
      
+
