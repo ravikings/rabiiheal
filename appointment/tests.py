@@ -1,6 +1,8 @@
-import json 
+import json
+import sqlite3
 from json import JSONDecoder
 from unittest.result import TestResult
+import requests
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.test import RequestFactory, TestCase, Client
@@ -21,6 +23,9 @@ from appointment.serializers import UserSerializer
 from appointment.models import Appointment
 from .views import AppointmentList
 from appointment.models import Appointment
+
+con = sqlite3.connect('db.sqlite3')
+cur = con.cursor()
 
 
 class RegistrationTestCase(APITestCase):
@@ -83,9 +88,21 @@ class RegistrationTestCase(APITestCase):
             "Password": "admin"
         }
 
-        response = self.client.post("/api-auth/login/", data, content_type='application/json')
+        response = self.client.post(
+            "/api-auth/login/", data, content_type='application/json')
         html = response.content.decode('utf8')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('<label for="id_password">Password:</label>', html)
-     
 
+    def test_data_is_stored_in_db(self):
+        cur.execute("select * from appointment_appointment where id = 1")
+        x = cur.fetchone()
+        self.assertEqual(x, (1, 'Abdulrafiu Rabiu', 'male', 'feeling bad', 7132495170, '1993-07-04', 'Houston',
+                         '2021-04-16', '2021-04-16 20:26:56.819845', '2021-04-16 20:26:56.819845', 1, '', '2511 Meers'))
+
+    # Testing field variable type
+
+    def test_user_is_available_usertable(self):
+        cur.execute("select * from auth_user where username = 'admin'")
+        x = cur.fetchone()
+        self.assertIn(1, x)
